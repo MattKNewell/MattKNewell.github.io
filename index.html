@@ -1,28 +1,436 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>BookBranch Mobile App</title>
-    <link href="styles.css" type="text/css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Matt Newell</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <script data-goatcounter="https://mattknewell.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0D1117;
+      --surface:   #161B22;
+      --border:    #21262D;
+      --text:      #E8E6E0;
+      --muted:     #7D8590;
+      --amber:     #F0A500;
+      --amber-dim: #3D2B00;
+      --green:     #3FB950;
+      --mono:      'JetBrains Mono', monospace;
+      --sans:      'Space Grotesk', sans-serif;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      font-size: 16px;
+      line-height: 1.6;
+      min-height: 100vh;
+      padding: 0 1.5rem;
+    }
+
+    .container {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 4rem 0 6rem;
+    }
+
+    /* ── Header ── */
+    .header {
+      margin-bottom: 3.5rem;
+    }
+
+    .header-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .name {
+      font-size: clamp(2rem, 6vw, 3rem);
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+    }
+
+    .name span {
+      color: var(--amber);
+    }
+
+    .status-badge {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 0.35rem 0.85rem;
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      color: var(--muted);
+      white-space: nowrap;
+      margin-top: 0.5rem;
+    }
+
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--green);
+      animation: pulse 2.5s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+
+    .tagline {
+      font-size: 1.05rem;
+      color: var(--muted);
+      max-width: 520px;
+      line-height: 1.65;
+    }
+
+    /* ── Section ── */
+    .section {
+      margin-bottom: 3rem;
+    }
+
+    .section-label {
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      color: var(--amber);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+    }
+
+    .bio {
+      font-size: 1rem;
+      color: var(--text);
+      line-height: 1.75;
+    }
+
+    .bio p + p {
+      margin-top: 0.85rem;
+    }
+
+    /* ── System status panel ── */
+    .services {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .services-header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.1rem;
+      border-bottom: 1px solid var(--border);
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+
+    .services-header::before {
+      content: '';
+      display: inline-block;
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      background: #FF5F57;
+      box-shadow: 18px 0 0 #FFBD2E, 36px 0 0 #28CA41;
+    }
+
+    .services-title {
+      margin-left: 2.5rem;
+    }
+
+    .service-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.8rem 1.1rem;
+      border-bottom: 1px solid var(--border);
+      transition: background 0.15s;
+    }
+
+    .service-row:last-child { border-bottom: none; }
+    .service-row:hover { background: rgba(255,255,255,0.02); }
+
+    .service-left {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .service-indicator {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .service-indicator.running {
+      background: var(--green);
+      box-shadow: 0 0 6px var(--green);
+    }
+
+    .service-indicator.stopped {
+      background: var(--muted);
+    }
+
+    .service-name {
+      font-family: var(--mono);
+      font-size: 0.85rem;
+      color: var(--text);
+    }
+
+    .service-desc {
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+
+    .service-status {
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      padding: 0.2rem 0.6rem;
+      border-radius: 4px;
+    }
+
+    .service-status.running {
+      background: rgba(63, 185, 80, 0.12);
+      color: var(--green);
+    }
+
+    .service-status.stopped {
+      background: var(--border);
+      color: var(--muted);
+    }
+
+    /* ── Philosophy ── */
+    .philosophy {
+      border-left: 2px solid var(--amber);
+      padding-left: 1.25rem;
+    }
+
+    .philosophy p {
+      font-size: 1rem;
+      color: var(--muted);
+      line-height: 1.75;
+    }
+
+    .philosophy p + p {
+      margin-top: 0.75rem;
+    }
+
+    .philosophy strong {
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    /* ── Links ── */
+    .links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+
+    .link-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.55rem 1.1rem;
+      border-radius: 6px;
+      font-size: 0.88rem;
+      font-weight: 500;
+      text-decoration: none;
+      border: 1px solid var(--border);
+      color: var(--text);
+      background: var(--surface);
+      transition: border-color 0.15s, color 0.15s;
+    }
+
+    .link-btn:hover {
+      border-color: var(--amber);
+      color: var(--amber);
+    }
+
+    .link-btn.primary {
+      background: var(--amber-dim);
+      border-color: var(--amber);
+      color: var(--amber);
+    }
+
+    .link-btn.primary:hover {
+      background: rgba(240,165,0,0.2);
+    }
+
+    /* ── Footer ── */
+    .footer {
+      margin-top: 4rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .footer-text {
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      color: var(--muted);
+    }
+
+    .footer-note {
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .footer-note::before {
+      content: '⚡';
+      font-size: 0.8rem;
+    }
+
+    @media (max-width: 480px) {
+      .header-top { flex-direction: column; }
+      .footer { flex-direction: column; }
+    }
+  </style>
 </head>
 <body>
-    <div class="title">
-    <h1>Project BookBranch App</h1>
-    <h2>Sponsor: Dan Hahn</h2>
-    <p>A book database and recommendation service with a personal touch.</p>
-    <p>For Android and IOS</p>
+  <div class="container">
+
+    <!-- Header -->
+    <header class="header">
+      <div class="header-top">
+        <h1 class="name">Matt <span>Newell</span></h1>
+        <div class="status-badge">
+          <span class="status-dot"></span>
+          open to work
+        </div>
+      </div>
+      <p class="tagline">
+        Senior Technical Support Engineer. Five years on Salesforce Gov Cloud.
+        I like understanding how things actually work — not just that they do.
+      </p>
+    </header>
+
+    <!-- About -->
+    <div class="section">
+      <div class="section-label">// about</div>
+      <div class="bio">
+        <p>
+          Based in Portland, OR. I've spent my career in enterprise technical support —
+          debugging what others can't reproduce, reading logs others skip,
+          and explaining complex systems to people who shouldn't have to care about them.
+        </p>
+        <p>
+          In 2017 I was building Solidity DAPPs at Portland State during the CryptoKitties era.
+          Not for the speculation — for the architecture. That curiosity never went away.
+        </p>
+      </div>
     </div>
 
-<a href="https://apps.apple.com/us/app/bookbranch/id1478535359?ls=1"><img src="images/download.svg" class="iosStore" alt="ios link"></a>
-<br>
-<a href='https://play.google.com/store/apps/details?id=com.bookbranchfinafinal'><img class="gStore" alt='Get it on Google Play' src='https://play.google.com/intl/en_us/badges/images/generic/en_badge_web_generic.png'/></a>
-<br>
-<img src="images/1.png" alt="Italian Trulli">
-<img src="images/2.png" alt="Italian Trulli">
-<img src="images/3.png" alt="Italian Trulli">
-<img src="images/4.png" alt="Italian Trulli">
-<br>
-<img src="images/5.png" alt="Italian Trulli">
+    <!-- System Status -->
+    <div class="section">
+      <div class="section-label">// home server — running services</div>
+      <div class="services">
+        <div class="services-header">
+          <span class="services-title">flaxen-tour.local — StartOS 0.3.5</span>
+        </div>
+        <div class="service-row">
+          <div class="service-left">
+            <span class="service-indicator running"></span>
+            <div>
+              <div class="service-name">DeepSeek R1 0528 · 8B</div>
+              <div class="service-desc">Local LLM inference via Ollama — prompts stay on device</div>
+            </div>
+          </div>
+          <span class="service-status running">running</span>
+        </div>
+        <div class="service-row">
+          <div class="service-left">
+            <span class="service-indicator running"></span>
+            <div>
+              <div class="service-name">Bitcoin Knots</div>
+              <div class="service-desc">Full node — I verify my own transactions</div>
+            </div>
+          </div>
+          <span class="service-status running">running</span>
+        </div>
+        <div class="service-row">
+          <div class="service-left">
+            <span class="service-indicator running"></span>
+            <div>
+              <div class="service-name">Vaultwarden</div>
+              <div class="service-desc">Self-hosted password manager</div>
+            </div>
+          </div>
+          <span class="service-status running">running</span>
+        </div>
+        <div class="service-row">
+          <div class="service-left">
+            <span class="service-indicator running"></span>
+            <div>
+              <div class="service-name">electrs</div>
+              <div class="service-desc">Personal Electrum server</div>
+            </div>
+          </div>
+          <span class="service-status running">running</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Philosophy -->
+    <div class="section">
+      <div class="section-label">// philosophy</div>
+      <div class="philosophy">
+        <p>
+          <strong>Not everything needs to scale. Not everything needs to be fast.</strong>
+          My local AI takes 15 minutes to respond. I pulled the service logs to verify
+          nothing was leaving my network. It wasn't. That's worth 15 minutes.
+        </p>
+        <p>
+          One ASIC in the garage. One lottery ticket.
+          Some things are worth doing just to understand them.
+        </p>
+      </div>
+    </div>
+
+    <!-- Links -->
+    <div class="section">
+      <div class="section-label">// find me</div>
+      <div class="links">
+        <a class="link-btn primary" href="https://linkedin.com/in/mattknewell" target="_blank">
+          LinkedIn
+        </a>
+        <a class="link-btn" href="mailto:mattknewell@gmail.com">
+          mattknewell@gmail.com
+        </a>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <span class="footer-text">© 2026 Matt Newell · Portland, OR</span>
+      <span class="footer-note">analytics: self-hosted, no third party tracking</span>
+    </footer>
+
+  </div>
 </body>
 </html>
-
